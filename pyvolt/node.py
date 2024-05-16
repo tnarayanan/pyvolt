@@ -18,6 +18,9 @@ class Node:
 
     def __eq__(self, other: Self) -> bool:
         return self.node_id == other.node_id
+    
+    def __hash__(self) -> int:
+        return self.node_id
 
 
 class NodeRef:
@@ -46,3 +49,6 @@ class NodeRef:
         # add the components to the node's set of connected components
         self.node.connected_comps.add(self.component)
         node_ref.node.connected_comps.add(node_ref.component)
+
+    def __repr__(self) -> str:
+        return f"NodeRef({self.node.node_id if self.node is not None else "None"})"
