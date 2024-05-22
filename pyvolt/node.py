@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, Self
 if TYPE_CHECKING:
     from pyvolt.components import Component
 
+from pyvolt.errors import NodeConnectionError
 
 class Node:
     __next_node_id: int = 0
@@ -33,15 +34,15 @@ class NodeRef:
             # create new shared Node
             self.node = Node()
             node_ref.node = self.node
-        elif self.node is not None:
-            # connect other node_ref to own node
-            node_ref.node = self.node
-        elif node_ref.node is not None:
+        elif self.node is None:
             # connect own node ref to other node
             self.node = node_ref.node
+        elif node_ref.node is None:
+            # connect other node_ref to own node
+            node_ref.node = self.node
         elif self.node != node_ref.node:
             # both nodes exist and are different, which is an error
-            raise ConnectionError("Trying to connect two distinct nodes together")
+            raise NodeConnectionError("Trying to connect two distinct nodes together")
 
         # the only other case is when both nodes exist and are the same node,
         # which is a redundant connection
