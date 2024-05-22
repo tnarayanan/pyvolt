@@ -18,20 +18,15 @@ class Circuit:
         stack = [self.gnd.node]
 
         while len(stack) > 0:
-            # print(stack)
             cur_node = stack.pop()
 
             print(f"Node {cur_node.node_id}")
             for component in cur_node.connected_comps:
                 print(f"\t{component}")
-                # print(f"\t\t{component.node_refs}")
                 for node_ref in component.node_refs:
                     if node_ref.node not in visited_nodes:
-                        # print(f"adding node {node_ref.node.node_id}")
                         visited_nodes.add(node_ref.node)
                         stack.append(node_ref.node)
-                    # else:
-                        # print(f"node {node_ref.node.node_id} already in vis")
 
     def inspect_voltage(self, node_ref: NodeRef) -> float:
         return 0.0

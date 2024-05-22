@@ -3,16 +3,18 @@ from pyvolt import components as comp
 
 
 class Arduino(pv.Component):
-    def __init__(self, n_pins=5):
+    def __init__(self, name: str = "", n_pins: int = 5):
+        super().__init__(name)
         self.n_pins = n_pins
         self.pin_voltages = [0 for _ in range(n_pins)]
-        self.pin_connections = [None for _ in range(n_pins)]
+        self.pin_connections = [self.new_node_ref() for _ in range(n_pins)]
 
-        self.gnd_connection = None
+        self.gnd_connection = self.new_node_ref()
 
     def pin(self, pin):
         return self.pin_connections[pin]
 
+    @property
     def gnd(self):
         return self.gnd_connection
 
@@ -26,17 +28,17 @@ class Arduino(pv.Component):
 circuit = pv.Circuit()
 
 # define the components of the circuit
-arduino = Arduino() in circuit
-resistor = comp.Resistor(ohm=150) in circuit
-diode = comp.Diode(v_f=2, i_f=20e-3) in circuit
+(arduino := Arduino(name="arduino", n_pins=1)) in circuit
+(resistor := comp.Resistor(name="150ohm", ohm=150)) in circuit
+(diode := comp.Diode(name="led", v_f=2, i_f=20e-3)) in circuit
 
 # define the connections between components
 arduino.pin(0) >> resistor.n1
 resistor.n2 >> diode.anode
-diode.cathode >> arduino.gnd()
+diode.cathode >> arduino.gnd
 
 # set the circuit reference voltage
-circuit.gnd >> arduino.gnd()
+circuit.gnd >> arduino.gnd
 
 # CASE 1: pin 0 is on
 arduino.pin_on(0)
