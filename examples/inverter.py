@@ -12,7 +12,7 @@ pmos.drain >> nmos.drain
 nmos.source >> voltage_source.vminus
 
 # gate control
-input = "high"
+input = "low"
 
 (voltage_source.vplus if input == "high" else voltage_source.vminus) >> pmos.gate
 
@@ -20,6 +20,6 @@ pmos.gate >> nmos.gate
 
 circuit.gnd >> voltage_source.vminus
 
-circuit.compile(print_output=False)
+circuit.compile(print_output=True)
 
 print(f"input = {input}, output = {"low" if circuit.inspect_voltage(pmos.drain) < 1 else "high"}")

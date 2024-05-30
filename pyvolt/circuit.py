@@ -69,26 +69,17 @@ class Circuit:
                     is_transistor_on = solver.IntVar(0, 1, f"tmp{tmp_cnt}")
                     tmp_cnt += 1
 
-                    if v_th > 0:
-                        # nMOS
+                    mult = -1 if v_th < 0 else 1
+                    flow_start = component.drain if v_th > 0 else component.source
+                    flow_end = component.source if v_th > 0 else component.drain
 
-                        # V_gs >= v_th if nMOS is on
-                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] >= v_th - 10000 * (1 - is_transistor_on))
-                        # V_gs <= v_th - eps if nMOS is off
-                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] <= v_th - 1e-6 + 10000 * is_transistor_on)
+                    # mult * V_gs >= mult * v_th if transistor is on
+                    solver.Add(mult * (v_vars[component.gate.node] - v_vars[component.source.node]) >= mult * v_th - 10000 * (1 - is_transistor_on))
+                    # mult * V_gs <= mult * v_th - eps if transistor is off
+                    solver.Add(mult * (v_vars[component.gate.node] - v_vars[component.source.node]) <= mult * v_th - 1e-6 + 10000 * is_transistor_on)
 
-                        solver.Add(v_vars[component.drain.node] - v_vars[component.source.node] >= (i_vars[component.source] * r_on) - 10000 * (1 - is_transistor_on))
-                        solver.Add(v_vars[component.drain.node] - v_vars[component.source.node] <= (i_vars[component.source] * r_on) + 10000 * (1 - is_transistor_on))
-                    else:
-                        # pMOS
-
-                        # V_gs <= v_th if pMOS is on
-                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] <= v_th + 10000 * (1 - is_transistor_on))
-                        # V_gs >= v_th + eps if pMOS is off
-                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] >= v_th + 1e-6 - 10000 * is_transistor_on)
-
-                        solver.Add(v_vars[component.source.node] - v_vars[component.drain.node] >= (i_vars[component.drain] * r_on) - 10000 * (1 - is_transistor_on))
-                        solver.Add(v_vars[component.source.node] - v_vars[component.drain.node] <= (i_vars[component.drain] * r_on) + 10000 * (1 - is_transistor_on))
+                    solver.Add(v_vars[flow_start.node] - v_vars[flow_end.node] >= (i_vars[flow_end] * r_on) - 10000 * (1 - is_transistor_on))
+                    solver.Add(v_vars[flow_start.node] - v_vars[flow_end.node] <= (i_vars[flow_end] * r_on) + 10000 * (1 - is_transistor_on))
 
                     solver.Add(i_vars[component.gate] == 0)
                     solver.Add(i_vars[component.drain] == -i_vars[component.source])
