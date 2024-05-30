@@ -1,3 +1,4 @@
+from enum import Enum
 from pyvolt.node import NodeRef
 
 
@@ -54,3 +55,14 @@ class Switch(Component):
 
         self.n1: NodeRef = self.new_node_ref("n1")
         self.n2: NodeRef = self.new_node_ref("n2")
+
+
+class Transistor(Component):
+    def __init__(self, name: str = "", v_th: float = 0.5, r_on: float = 150):
+        super().__init__(name)
+        self.v_th: float = v_th
+        self.r_on: float = r_on
+
+        self.drain: NodeRef = self.new_node_ref("drain")
+        self.source: NodeRef = self.new_node_ref("source")
+        self.gate: NodeRef = self.new_node_ref("gate")

@@ -1,6 +1,6 @@
 from typing import Any
 from pyvolt.node import Node, NodeRef
-from pyvolt.components import Component, Diode, Ground, Resistor, Switch, VoltageSource
+from pyvolt.components import Component, Diode, Ground, Resistor, Switch, Transistor, VoltageSource
 
 from ortools.linear_solver import pywraplp
 
@@ -57,7 +57,7 @@ class Circuit:
                     # current on anode and cathode must be equal
                     solver.Add(i_vars[component.anode] == -i_vars[component.cathode])
                     # current is greater than zero if the diode is on, but zero if the diode is off
-                    solver.Add(i_vars[component.cathode] >= -10000 * (1 - is_diode_on))
+                    solver.Add(i_vars[component.cathode] >= 1e-6 + -10000 * (1 - is_diode_on))
                     solver.Add(i_vars[component.cathode] <= 10000 * is_diode_on)
                 case Switch(closed=closed):
                     solver.Add(i_vars[component.n1] == -i_vars[component.n2])
@@ -65,6 +65,34 @@ class Circuit:
                         solver.Add(v_vars[component.n1.node] == v_vars[component.n2.node])
                     else:
                         solver.Add(i_vars[component.n1] == 0)
+                case Transistor(v_th=v_th, r_on=r_on):
+                    is_transistor_on = solver.IntVar(0, 1, f"tmp{tmp_cnt}")
+                    tmp_cnt += 1
+
+                    if v_th > 0:
+                        # nMOS
+
+                        # V_gs >= v_th if nMOS is on
+                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] >= v_th - 10000 * (1 - is_transistor_on))
+                        # V_gs <= v_th - eps if nMOS is off
+                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] <= v_th - 1e-6 + 10000 * is_transistor_on)
+
+                        solver.Add(v_vars[component.drain.node] - v_vars[component.source.node] >= (i_vars[component.source] * r_on) - 10000 * (1 - is_transistor_on))
+                        solver.Add(v_vars[component.drain.node] - v_vars[component.source.node] <= (i_vars[component.source] * r_on) + 10000 * (1 - is_transistor_on))
+                    else:
+                        # pMOS
+
+                        # V_gs <= v_th if pMOS is on
+                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] <= v_th + 10000 * (1 - is_transistor_on))
+                        # V_gs >= v_th + eps if pMOS is off
+                        solver.Add(v_vars[component.gate.node] - v_vars[component.source.node] >= v_th + 1e-6 - 10000 * is_transistor_on)
+
+                        solver.Add(v_vars[component.source.node] - v_vars[component.drain.node] >= (i_vars[component.drain] * r_on) - 10000 * (1 - is_transistor_on))
+                        solver.Add(v_vars[component.source.node] - v_vars[component.drain.node] <= (i_vars[component.drain] * r_on) + 10000 * (1 - is_transistor_on))
+
+                    solver.Add(i_vars[component.gate] == 0)
+                    solver.Add(i_vars[component.drain] == -i_vars[component.source])
+
                 case _:
                     for node_ref in component.node_refs:
                         if node_ref.target_v is not None:
@@ -91,6 +119,8 @@ class Circuit:
                 node.v = round(v_vars[node].solution_value(), 6)
             for node_ref in i_vars:
                 node_ref.i = round(i_vars[node_ref].solution_value(), 8)
+            # for diode_is_on_var in diode_on_vars:
+            #     print(diode_is_on_var.solution_value())
         else:
             print("The problem does not have an optimal solution.")
                     
