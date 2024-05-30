@@ -15,7 +15,8 @@ class Circuit:
         return self.gnd_comp.gnd
 
     def compile(self):
-        solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("GLOP")
+        solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("SCIP")
+        # solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("GLOP")
         if not solver:
             raise RuntimeError("Could not instantiate solver")
         
@@ -50,8 +51,9 @@ class Circuit:
                     # solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] == v_f)
                     solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] >= v_f - 10000 * (1 - is_diode_on))
                     solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] <= v_f + 10000 * (1 - is_diode_on))
-                    # current must be equal
+                    # current on anode and cathode must be equal
                     solver.Add(i_vars[component.anode.node] == i_vars[component.cathode.node])
+                    # current is greater than zero if the diode is on, but zero if the diode is off
                     solver.Add(i_vars[component.anode.node] >= -10000 * (1 - is_diode_on))
                     solver.Add(i_vars[component.anode.node] <= 10000 * is_diode_on)
 
