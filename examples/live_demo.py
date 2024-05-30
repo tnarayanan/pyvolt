@@ -3,8 +3,8 @@ from pyvolt import components as comp
 
 circuit = pv.Circuit()
 
-(voltage_source := comp.VoltageSource(name="V_in", v=5)) in circuit
-(resistor := comp.Resistor(name="R", ohm=150)) in circuit
+(voltage_source := comp.VoltageSource(name="Vcc", v=5)) in circuit
+(resistor := comp.Resistor(name="r1", ohm=150)) in circuit
 (diode := comp.Diode(name="LED", v_f=2)) in circuit
 
 voltage_source.vplus >> resistor.n1

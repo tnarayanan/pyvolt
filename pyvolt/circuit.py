@@ -14,7 +14,7 @@ class Circuit:
     def gnd(self):
         return self.gnd_comp.gnd
 
-    def compile(self):
+    def compile(self, print_output: bool = True):
         solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("SCIP")
         # solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("GLOP")
         if not solver:
@@ -59,7 +59,6 @@ class Circuit:
                     # current is greater than zero if the diode is on, but zero if the diode is off
                     solver.Add(i_vars[component.cathode] >= -10000 * (1 - is_diode_on))
                     solver.Add(i_vars[component.cathode] <= 10000 * is_diode_on)
-
                 case Switch(closed=closed):
                     solver.Add(i_vars[component.n1] == -i_vars[component.n2])
                     if closed:
@@ -79,17 +78,15 @@ class Circuit:
             node_ref_i_vars = [i_vars[node_ref] for node_ref in node.connected_node_refs]
             solver.Add(sum(node_ref_i_vars) == 0)
         
+        # maximize the number of diodes turned on
         objective = solver.Objective()
         for diode_var in diode_on_vars:
             objective.SetCoefficient(diode_var, 1)
         objective.SetMaximization()
 
-        # solver.Maximize(0)
         status = solver.Solve()
 
         if status == pywraplp.Solver.OPTIMAL:
-            # print("Solution:")
-            # print(f"Objective value = {solver.Objective().Value():0.1f}")
             for node in v_vars:
                 node.v = round(v_vars[node].solution_value(), 6)
             for node_ref in i_vars:
@@ -98,22 +95,35 @@ class Circuit:
             print("The problem does not have an optimal solution.")
                     
 
+        if print_output:
+            print()
+            print("Compiled circuit")
+            print("----------------")
+            visited_nodes = set()
+            visited_nodes.add(self.gnd.node)
 
-        visited_nodes = set()
-        visited_nodes.add(self.gnd.node)
+            print_output_per_node: dict[int, str] = {}
 
-        stack = [self.gnd.node]
+            stack = [self.gnd.node]
 
-        while len(stack) > 0:
-            cur_node = stack.pop()
+            while len(stack) > 0:
+                cur_node = stack.pop()
 
-            print(f"Node {cur_node.node_id}: v={cur_node.v}, i={[nr.i for nr in cur_node.connected_node_refs]}")
-            for component in cur_node.connected_comps:
-                print(f"\t{component}")
-                for node_ref in component.node_refs:
-                    if node_ref.node not in visited_nodes:
-                        visited_nodes.add(node_ref.node)
-                        stack.append(node_ref.node)
+                cur_node_print = f"Node {cur_node.node_id}: v={cur_node.v}"
+                for component in cur_node.connected_comps:
+                    # print(f"    {component}")
+                    for node_ref in component.node_refs:
+                        if node_ref.node == cur_node:
+                            cur_node_print += f"\n    {component.name}.{node_ref.name}: i={node_ref.i}"
+                        if node_ref.node not in visited_nodes:
+                            visited_nodes.add(node_ref.node)
+                            stack.append(node_ref.node)
+                
+                print_output_per_node[cur_node.node_id] = cur_node_print
+            
+            for i in range(len(visited_nodes)):
+                print(print_output_per_node[i])
+            print("----------------")
 
     def inspect_voltage(self, node_ref: NodeRef) -> float:
         return node_ref.get_voltage()

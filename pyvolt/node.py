@@ -28,9 +28,11 @@ class Node:
 class NodeRef:
     __next_node_ref_id: int = 0
 
-    def __init__(self, component):
+    def __init__(self, component, name):
         self.node_ref_id: int = NodeRef.__next_node_ref_id
         NodeRef.__next_node_ref_id += 1
+
+        self.name = name
 
         self.node: Optional[Node] = None
         self.component: Component = component
@@ -83,7 +85,7 @@ class NodeRef:
         node_ref.node.connected_node_refs.add(node_ref)
 
     def __repr__(self) -> str:
-        return f"NodeRef({self.node.node_id if self.node is not None else "None"})"
+        return f"NodeRef({self.name}{": " if self.name != "" else ""}{self.node.node_id if self.node is not None else "None"})"
     
     def __eq__(self, other: Self) -> bool:
         return self.node_ref_id == other.node_ref_id

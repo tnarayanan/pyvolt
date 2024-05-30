@@ -7,9 +7,9 @@ class Arduino(pv.Component):
         super().__init__(name)
         self.n_pins = n_pins
         self.pin_voltages = [0 for _ in range(n_pins)]
-        self.pin_connections: list[pv.NodeRef] = [self.new_node_ref() for _ in range(n_pins)]
+        self.pin_connections: list[pv.NodeRef] = [self.new_node_ref(f"pin{i}") for i in range(n_pins)]
 
-        self.gnd_connection = self.new_node_ref()
+        self.gnd_connection = self.new_node_ref("gnd")
 
     def pin(self, pin):
         return self.pin_connections[pin]
@@ -29,8 +29,8 @@ circuit = pv.Circuit()
 
 # define the components of the circuit
 (arduino := Arduino(name="arduino", n_pins=1)) in circuit
-(resistor := comp.Resistor(name="150ohm", ohm=150)) in circuit
-(diode := comp.Diode(name="led", v_f=2)) in circuit
+(resistor := comp.Resistor(name="r1", ohm=150)) in circuit
+(diode := comp.Diode(name="LED", v_f=2)) in circuit
 
 # define the connections between components
 arduino.pin(0) >> resistor.n1
