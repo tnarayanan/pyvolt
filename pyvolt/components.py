@@ -39,10 +39,9 @@ class Resistor(Component):
 
 
 class Diode(Component):
-    def __init__(self, name: str = "", v_f: float = 2, i_f: float = 1e-2):
+    def __init__(self, name: str = "", v_f: float = 2):
         super().__init__(name)
         self.v_f: float = v_f
-        self.i_f: float = i_f
 
         self.anode: NodeRef = self.new_node_ref()
         self.cathode: NodeRef = self.new_node_ref()

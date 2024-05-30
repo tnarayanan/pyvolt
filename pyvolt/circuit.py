@@ -46,7 +46,7 @@ class Circuit:
                     solver.Add(v_vars[component.n1.node] - v_vars[component.n2.node] == i_vars[component.n2] * ohm)
                     # current must be equal
                     solver.Add(i_vars[component.n1] == -i_vars[component.n2])
-                case Diode(v_f=v_f, i_f=i_f):
+                case Diode(v_f=v_f):
                     is_diode_on = solver.IntVar(0, 1, f"tmp{tmp_cnt}")
                     tmp_cnt += 1
                     diode_on_vars.append(is_diode_on)
@@ -93,9 +93,7 @@ class Circuit:
             for node in v_vars:
                 node.v = round(v_vars[node].solution_value(), 6)
             for node_ref in i_vars:
-                node_ref.i = round(i_vars[node_ref].solution_value(), 6)
-            for var in diode_on_vars:
-                print(f"diode on: {var.solution_value()}")
+                node_ref.i = round(i_vars[node_ref].solution_value(), 8)
         else:
             print("The problem does not have an optimal solution.")
                     

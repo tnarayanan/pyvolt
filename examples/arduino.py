@@ -30,7 +30,7 @@ circuit = pv.Circuit()
 # define the components of the circuit
 (arduino := Arduino(name="arduino", n_pins=1)) in circuit
 (resistor := comp.Resistor(name="150ohm", ohm=150)) in circuit
-(diode := comp.Diode(name="led", v_f=2, i_f=20e-3)) in circuit
+(diode := comp.Diode(name="led", v_f=2)) in circuit
 
 # define the connections between components
 arduino.pin(0) >> resistor.n1
