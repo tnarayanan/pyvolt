@@ -7,7 +7,7 @@ class Arduino(pv.Component):
         super().__init__(name)
         self.n_pins = n_pins
         self.pin_voltages = [0 for _ in range(n_pins)]
-        self.pin_connections = [self.new_node_ref() for _ in range(n_pins)]
+        self.pin_connections: list[pv.NodeRef] = [self.new_node_ref() for _ in range(n_pins)]
 
         self.gnd_connection = self.new_node_ref()
 
@@ -19,10 +19,10 @@ class Arduino(pv.Component):
         return self.gnd_connection
 
     def pin_on(self, pin):
-        self.pin_voltages[pin] = 5
+        self.pin_connections[pin].set_voltage(5)
 
     def pin_off(self, pin):
-        self.pin_voltages[pin] = 0
+        self.pin_connections[pin].set_voltage(0)
 
 
 circuit = pv.Circuit()

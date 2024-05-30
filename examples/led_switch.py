@@ -6,13 +6,16 @@ circuit = pv.Circuit()
 (voltage_source := comp.VoltageSource(name="Voltage Source", v=5)) in circuit
 (resistor := comp.Resistor(name="150ohm resistor", ohm=150)) in circuit
 (diode := comp.Diode(name="LED", v_f=2, i_f=20e-3)) in circuit
+(switch := comp.Switch(name="Switch")) in circuit
 # define the connections between components
 voltage_source.vplus >> resistor.n1
 resistor.n2 >> diode.anode
-diode.cathode >> voltage_source.vminus
+diode.cathode >> switch.n1
+switch.n2 >> voltage_source.vminus
 # set the circuit reference voltage
 circuit.gnd >> voltage_source.vminus
 # compile the circuit
+switch.closed = False
 circuit.compile()
 # probe the circuit
 print("V before diode:", circuit.inspect_voltage(diode.anode))

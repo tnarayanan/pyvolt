@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, Self
 if TYPE_CHECKING:
     from pyvolt.components import Component
 
-from pyvolt.errors import NodeConnectionError
+from pyvolt.errors import NodeConnectionError, NodeError
 
 class Node:
     __next_node_id: int = 0
@@ -15,6 +15,7 @@ class Node:
         Node.__next_node_id += 1
 
         self.v: float = 0.0
+        self.i: float = 0.0
         self.connected_comps: set[Component] = set()
 
     def __eq__(self, other: Self) -> bool:
@@ -28,6 +29,25 @@ class NodeRef:
     def __init__(self, component):
         self.node: Optional[Node] = None
         self.component: Component = component
+
+        self.target_v: Optional[float] = None
+        self.target_i: Optional[float] = None
+
+    def get_voltage(self) -> float:
+        if self.node is None:
+            raise NodeError("Must set node before accessing voltage")
+        return self.node.v
+
+    def set_voltage(self, voltage: Optional[float]):
+        self.target_v = voltage
+
+    def get_current(self) -> float:
+        if self.node is None:
+            raise NodeError("Must set node before accessing current")
+        return self.node.i
+
+    def set_current(self, current: Optional[float]):
+        self.target_i = current
 
     def __rshift__(self, node_ref: Self):
         if self.node is None and node_ref.node is None:

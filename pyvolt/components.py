@@ -46,3 +46,12 @@ class Diode(Component):
 
         self.anode: NodeRef = self.new_node_ref()
         self.cathode: NodeRef = self.new_node_ref()
+
+
+class Switch(Component):
+    def __init__(self, name: str = "", closed: bool = True):
+        super().__init__(name)
+        self.closed: bool = closed
+
+        self.n1: NodeRef = self.new_node_ref()
+        self.n2: NodeRef = self.new_node_ref()
