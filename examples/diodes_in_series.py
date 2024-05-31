@@ -5,7 +5,7 @@ circuit = pv.Circuit()
 # define the components of the circuit
 (voltage_source := comp.VoltageSource(name="Vcc", v=5)) in circuit
 (diode1 := comp.Diode(name="diode1", v_f=3)) in circuit
-(diode2 := comp.Diode(name="diode2", v_f=2)) in circuit
+(diode2 := comp.Diode(name="diode2", v_f=3)) in circuit
 # (resistor := comp.Resistor(name="r1", ohm=150)) in circuit
 
 voltage_source.vplus >> diode1.anode

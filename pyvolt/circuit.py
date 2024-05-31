@@ -57,7 +57,7 @@ class Circuit:
                     # current on anode and cathode must be equal
                     solver.Add(i_vars[component.anode] == -i_vars[component.cathode])
                     # current is greater than zero if the diode is on, but zero if the diode is off
-                    solver.Add(i_vars[component.cathode] >= 1e-6 + -10000 * (1 - is_diode_on))
+                    solver.Add(i_vars[component.cathode] >= 1e-6 - 10000 * (1 - is_diode_on))
                     solver.Add(i_vars[component.cathode] <= 10000 * is_diode_on)
                 case Switch(closed=closed):
                     solver.Add(i_vars[component.n1] == -i_vars[component.n2])
@@ -83,7 +83,6 @@ class Circuit:
 
                     solver.Add(i_vars[component.gate] == 0)
                     solver.Add(i_vars[component.drain] == -i_vars[component.source])
-
                 case _:
                     for node_ref in component.node_refs:
                         if node_ref.target_v is not None:
@@ -120,29 +119,24 @@ class Circuit:
             print()
             print("Compiled circuit")
             print("----------------")
-            visited_nodes = set()
-            visited_nodes.add(self.gnd.node)
 
             print_output_per_node: dict[int, str] = {}
 
-            stack = [self.gnd.node]
+            all_nodes: set[Node] = set()
 
-            while len(stack) > 0:
-                cur_node = stack.pop()
+            for component in self.components:
+                for node_ref in component.node_refs:
+                    all_nodes.add(node_ref.node)
 
+            for cur_node in all_nodes:
                 cur_node_print = f"Node {cur_node.node_id}: v={cur_node.v}"
                 for component in cur_node.connected_comps:
-                    # print(f"    {component}")
                     for node_ref in component.node_refs:
                         if node_ref.node == cur_node:
                             cur_node_print += f"\n    {component.name}.{node_ref.name}: i={node_ref.i}"
-                        if node_ref.node not in visited_nodes:
-                            visited_nodes.add(node_ref.node)
-                            stack.append(node_ref.node)
-                
                 print_output_per_node[cur_node.node_id] = cur_node_print
-            
-            for i in range(len(visited_nodes)):
+
+            for i in range(len(all_nodes)):
                 print(print_output_per_node[i])
             print("----------------")
 
