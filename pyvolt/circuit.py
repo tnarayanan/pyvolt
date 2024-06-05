@@ -54,11 +54,13 @@ class Circuit:
                     # solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] == v_f)
                     solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] >= v_f - 10000 * (1 - is_diode_on))
                     solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] <= v_f + 10000 * (1 - is_diode_on))
+
+                    solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] >= -1e9 * is_diode_on + i_vars[component.cathode] * 1e7)
+                    solver.Add(v_vars[component.anode.node] - v_vars[component.cathode.node] <= 1e9 * is_diode_on + i_vars[component.cathode] * 1e7)
                     # current on anode and cathode must be equal
                     solver.Add(i_vars[component.anode] == -i_vars[component.cathode])
                     # current is greater than zero if the diode is on, but zero if the diode is off
                     solver.Add(i_vars[component.cathode] >= 1e-6 - 10000 * (1 - is_diode_on))
-                    solver.Add(i_vars[component.cathode] <= 10000 * is_diode_on)
                 case Switch(closed=closed):
                     solver.Add(i_vars[component.n1] == -i_vars[component.n2])
                     if closed:
@@ -106,9 +108,9 @@ class Circuit:
 
         if status == pywraplp.Solver.OPTIMAL:
             for node in v_vars:
-                node.v = round(v_vars[node].solution_value(), 6)
+                node.v = round(v_vars[node].solution_value(), 3)
             for node_ref in i_vars:
-                node_ref.i = round(i_vars[node_ref].solution_value(), 8)
+                node_ref.i = round(i_vars[node_ref].solution_value(), 6)
             # for diode_is_on_var in diode_on_vars:
             #     print(diode_is_on_var.solution_value())
         else:
