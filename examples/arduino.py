@@ -5,10 +5,7 @@ from pyvolt import components as comp
 class Arduino(pv.Component):
     def __init__(self, name: str = "", n_pins: int = 5):
         super().__init__(name)
-        self.n_pins = n_pins
-        self.pin_voltages = [0 for _ in range(n_pins)]
         self.pin_connections: list[pv.NodeRef] = [self.new_node_ref(f"pin{i}") for i in range(n_pins)]
-
         self.gnd_connection = self.new_node_ref("gnd")
 
     def pin(self, pin):
