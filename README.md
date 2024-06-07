@@ -4,7 +4,7 @@ Pyvolt makes circuit specification and simulation easy.
 
 ## Installation and import
 
-Install pyvolt using `pip install pyvolt`.
+Install pyvolt using `pip install -e .` after cloning the repository.
 
 Import pyvolt using `import pyvolt as pv` and `import pyvolt.components as comp`.
 
