@@ -25,9 +25,9 @@ class Arduino(pv.Component):
 circuit = pv.Circuit()
 
 # define the components of the circuit
-(arduino := Arduino(name="arduino", n_pins=1)) in circuit
-(resistor := comp.Resistor(name="r1", ohm=150)) in circuit
-(diode := comp.Diode(name="LED", v_f=2)) in circuit
+circuit.add(arduino := Arduino(name="arduino", n_pins=1))
+circuit.add(resistor := comp.Resistor(name="r1", ohm=150))
+circuit.add(diode := comp.Diode(name="LED", v_f=2))
 
 # define the connections between components
 arduino.pin(0) >> resistor.n1

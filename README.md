@@ -18,12 +18,14 @@ circuit = pv.Circuit()
 
 ### Create components
 
-Create a `VoltageSource`, `Resistor`, `Diode`, `Switch`, or `Transistor` and attach it to the circuit:
+Create a `VoltageSource`, `Resistor`, `Diode`, `Switch`, or `Transistor` and add it to the circuit.
+Use of Python's walrus (`:=`) operator is optional, but enables users to create and add components
+in one line.
 
 ```python
-(voltage_source := comp.VoltageSource(name="V", v=5)) in circuit
-(resistor := comp.Resistor(name="r1", ohm=150)) in circuit
-(diode := comp.Diode(name="LED", v_f=2)) in circuit
+circuit.add(voltage_source := comp.VoltageSource(name="V", v=5))
+circuit.add(resistor := comp.Resistor(name="r1", ohm=150))
+circuit.add(diode := comp.Diode(name="LED", v_f=2))
 ```
 
 ### Connect components
@@ -117,8 +119,8 @@ Then, we can use it just like any other component:
 ```python
 circuit = pv.Circuit()
 
-(arduino := Arduino(name="arduino", n_pins=2)) in circuit
-(r2 := comp.Resistor(name="r2", ohm=300)) in circuit
+circuit.add(arduino := Arduino(name="arduino", n_pins=2))
+circuit.add(r2 := comp.Resistor(name="r2", ohm=300))
 
 arduino.pin(0) >> r2.n1
 # ...

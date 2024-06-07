@@ -3,9 +3,9 @@ from pyvolt import components as comp
 
 circuit = pv.Circuit()
 # define the components of the circuit
-(voltage_source := comp.VoltageSource(name="Vdd", v=5)) in circuit
-(pmos := comp.Transistor(name="pMOS", v_th=-0.5)) in circuit
-(nmos := comp.Transistor(name="nMOS", v_th=0.5)) in circuit
+circuit.add(voltage_source := comp.VoltageSource(name="Vdd", v=5))
+circuit.add(pmos := comp.Transistor(name="pMOS", v_th=-0.5))
+circuit.add(nmos := comp.Transistor(name="nMOS", v_th=0.5))
 
 voltage_source.vplus >> pmos.source
 pmos.drain >> nmos.drain

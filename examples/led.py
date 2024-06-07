@@ -3,9 +3,9 @@ from pyvolt import components as comp
 
 circuit = pv.Circuit()
 # define the components of the circuit
-(voltage_source := comp.VoltageSource(name="Vcc", v=5)) in circuit
-(resistor := comp.Resistor(name="r1", ohm=150)) in circuit
-(diode := comp.Diode(name="LED", v_f=2)) in circuit
+circuit.add(voltage_source := comp.VoltageSource(name="Vcc", v=5))
+circuit.add(resistor := comp.Resistor(name="r1", ohm=150))
+circuit.add(diode := comp.Diode(name="LED", v_f=2))
 # define the connections between components
 voltage_source.vplus >> resistor.n1
 resistor.n2 >> diode.anode

@@ -148,6 +148,6 @@ class Circuit:
     def inspect_current(self, node_ref: NodeRef) -> float:
         return node_ref.get_current()
 
-    def __contains__(self, component: Component) -> Component:
+    def add(self, component: Component) -> Component:
         self.components.append(component)
         return component
