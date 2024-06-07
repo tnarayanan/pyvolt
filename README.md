@@ -112,7 +112,14 @@ class Arduino(pv.Component):
         self.pin_connections[pin].set_voltage(0)
 ```
 
+Then, we can use it just like any other component:
 
+```python
+circuit = pv.Circuit()
 
+(arduino := Arduino(name="arduino", n_pins=2)) in circuit
+(r2 := comp.Resistor(name="r2", ohm=300)) in circuit
 
-
+arduino.pin(0) >> r2.n1
+# ...
+```
